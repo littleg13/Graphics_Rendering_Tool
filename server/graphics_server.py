@@ -1,4 +1,3 @@
-import json
 import socket
 import struct
 import os
@@ -18,6 +17,7 @@ class Server():
             (client_sock, addr) = self.sock.accept()
             self.client_sock = client_sock
             project = Project(self.recv_file())
+            self.client_sock.send(b'ack')
             while self.recv_file() is not None:
                 continue
             project.make()
@@ -30,6 +30,7 @@ class Server():
             return None
         size, name_length = struct.unpack_from('<LL', header, 0)
         filename = struct.unpack_from('<%ss' % name_length, header, 8)[0]
+        self.client_sock.send(b'ack')
         if len(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename), exist_ok=True)
         data_recv = 0
@@ -47,12 +48,9 @@ class Server():
 
 
 class Project():
-    def __init__(self, make_path):
-        with open(make_path, 'rb') as renderMake:
-            self.renderMake = json.load(renderMake)
-        self.name = self.renderMake['name']
-        self.makefile = self.renderMake['makefile']
-        self.execfile = self.renderMake['exec']
+    def __init__(self, setup_packet):
+        name_size, make_size, exec_size = struct.unpack_from('<LLL', setup_packet, 0)
+        self.name, self.makefile, self.execfile = struct.unpack_from('<%ss%ss%ss' % (name_size, make_size, exec_size), setup_packet, 12)
         os.makedirs(self.name, exist_ok=True)
         os.chdir(self.name)
 
