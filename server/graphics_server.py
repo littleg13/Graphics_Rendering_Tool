@@ -1,5 +1,6 @@
 import socket
 import struct
+import subprocess
 import os
 
 class Server():
@@ -12,10 +13,13 @@ class Server():
 
     def main_loop(self):
         starting_dir = os.getcwd()
+        project = None
         while True:
             os.chdir(os.path.join(starting_dir, 'projects'))
             (client_sock, addr) = self.sock.accept()
             self.client_sock = client_sock
+            if project is not None:
+                del project
             project = Project(self.client_sock.recv(1024))
             self.client_sock.send(b'ack')
             while self.recv_file() is not None:
@@ -53,7 +57,11 @@ class Project():
         self.name, self.makefile, self.execfile = struct.unpack_from('<%ss%ss%ss' % (name_size, make_size, exec_size), setup_packet, 12)
         os.makedirs(self.name, exist_ok=True)
         os.chdir(self.name)
+        self.process = None
 
+    def __del__(self):
+        self.process.terminate()
+    
     def make(self):
         root_dir = os.getcwd()
         os.chdir(os.path.dirname(self.makefile))
@@ -61,7 +69,7 @@ class Project():
         os.chdir(root_dir)
 
     def run(self):
-        os.system(self.execfile)
+        self.process = subprocess.Popen(self.execfile)
         
 def main():
     """Main Function."""
