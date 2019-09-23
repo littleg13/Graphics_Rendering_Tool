@@ -16,7 +16,7 @@ class Server():
             os.chdir(os.path.join(starting_dir, 'projects'))
             (client_sock, addr) = self.sock.accept()
             self.client_sock = client_sock
-            project = Project(self.recv_file())
+            project = Project(self.client_sock.recv(1024))
             self.client_sock.send(b'ack')
             while self.recv_file() is not None:
                 continue
@@ -55,7 +55,10 @@ class Project():
         os.chdir(self.name)
 
     def make(self):
-        os.system(self.makefile)
+        root_dir = os.getcwd()
+        os.chdir(os.path.dirname(self.makefile))
+        os.system('make')
+        os.chdir(root_dir)
 
     def run(self):
         os.system(self.execfile)
