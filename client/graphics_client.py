@@ -5,8 +5,8 @@ import os
 class Client():
 
     def __init__(self, ip):
-        self.sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-        self.sock.connect(('72:f8:2d:14:06:3b', 3000))
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect((ip, 3000))
         self.sock.settimeout(5)
         
     def send_project(self, root_path, make_path, exec_path):

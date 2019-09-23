@@ -5,7 +5,7 @@ import os
 class Server():
 
     def __init__(self):
-        self.sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind(('', 3000))
         self.sock.listen(5)
         self.client_sock = None
