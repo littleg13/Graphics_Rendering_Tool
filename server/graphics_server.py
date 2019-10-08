@@ -55,8 +55,15 @@ class Project():
     def __init__(self, setup_packet):
         name_size, make_size, exec_size, arg_size = struct.unpack_from('<LLLL', setup_packet, 0)
         self.name, self.makefile, self.execfile, self.arguments = struct.unpack_from('<%ss%ss%ss%ss' % (name_size, make_size, exec_size, arg_size), setup_packet, 16)
-        if os.path.exists(self.name):
-            os.system('rm -rf projects/*')
+        arguments = self.arguments.split()
+        for arg in self.arguments.split():
+            if arg == '-c' or arg == '--clean':
+                os.system('rm -rf projects/')
+                arguments.remove(arg)
+                break
+        self.arguments = ' '.join(arguments)
+        if os.path.exists(self.execfile):
+            os.system('rm -f %s' % self.execfile)
         os.makedirs(self.name, exist_ok=True)
         os.chdir(self.name)
         self.process = None

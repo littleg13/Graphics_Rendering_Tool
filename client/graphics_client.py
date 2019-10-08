@@ -28,7 +28,7 @@ class Client():
             for path, dirs, files in os.walk(root_path):
                 for file in files:
                     filename = os.path.join(path,file)
-                    if '.py' not in file:
+                    if '.py' not in file and '.o' not in file and '.so' not in file:
                         relative_path = os.path.relpath(filename, root_path)
                         self.send_file(relative_path, filename)
             self.sock.send(b'end')
@@ -59,7 +59,10 @@ def main():
     """Main Function."""
     print(sys.argv)
     client = Client(sys.argv[1])
-    client.send_project(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    if len(sys.argv) > 5:
+        client.send_project(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    else:
+        client.send_project(sys.argv[2], sys.argv[3], sys.argv[4], '')
 
 
 if __name__ == "__main__":
