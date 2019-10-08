@@ -32,9 +32,14 @@ class Server():
         header = self.client_sock.recv(4096)
         if header == b'end':
             return None
-        size, name_length = struct.unpack_from('<LL', header, 0)
-        filename = struct.unpack_from('<%ss' % name_length, header, 8)[0]
-        self.client_sock.send(b'ack')
+        size, name_length, modified_time, accessed_time = struct.unpack_from('<LLff', header, 0)
+        filename = struct.unpack_from('<%ss' % name_length, header, 16)[0]
+        if os.path.exists(filename) and os.stat(filename).st_mtime == modified_time:
+            self.client_sock.send(b'deny')
+            return False
+        else:
+            self.client_sock.send(b'accept')
+        
         if len(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename), exist_ok=True)
         data_recv = 0
@@ -48,6 +53,7 @@ class Server():
                     print(e)
                     break
         self.client_sock.send(b'ack')
+        os.utime(filename, (accessed_time, modified_time))
         return filename
 
 

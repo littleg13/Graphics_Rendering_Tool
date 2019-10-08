@@ -38,11 +38,20 @@ class Client():
             print('File path not found')
 
     def send_file(self, relative_path, full_path):
-        header = struct.pack('<LL%ss' % len(relative_path), os.path.getsize(full_path), len(relative_path), relative_path.encode())
+        stat = os.stat(full_path)
+        modified_time = stat.st_mtime
+        accessed_time = stat.st_atime
+        header = struct.pack('<LLff%ss' % len(relative_path), os.path.getsize(full_path), len(relative_path), modified_time, accessed_time, relative_path.encode())
         self.sock.send(header)
         try:
-            if self.sock.recv(4096) == b'ack':
-                print('recieved ack for %s' % relative_path)
+            reply = self.sock.recv(4096)
+            if reply == b'deny':
+                print('Denied %s' % relative_path)
+                return
+            elif reply == b'accept':
+                print('Accepted %s' % relative_path)
+            else:
+                raise Exception
         except Exception as e:
             print('Failed to get acknowledgement', e)
         with open(full_path, 'rb') as file_handle:
