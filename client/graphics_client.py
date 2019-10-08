@@ -9,15 +9,16 @@ class Client():
         self.sock.connect((ip, 3000))
         self.sock.settimeout(5)
         
-    def send_project(self, root_path, make_path, exec_path):
+    def send_project(self, root_path, make_path, exec_path, arguments):
         if os.path.exists(root_path):
             name = os.path.basename(root_path)
-            pack_str = '<LLL{name_size}s{make_size}s{exec_size}s'.format(
+            pack_str = '<LLLL{name_size}s{make_size}s{exec_size}s{optional_size}s'.format(
                 name_size=len(name),
                 make_size=len(make_path),
-                exec_size=len(exec_path)
+                exec_size=len(exec_path),
+                optional_size=len(arguments)
                 )
-            data = struct.pack(pack_str, len(name), len(make_path), len(exec_path), name.encode(), make_path.encode(), exec_path.encode())
+            data = struct.pack(pack_str, len(name), len(make_path), len(exec_path), len(arguments), name.encode(), make_path.encode(), exec_path.encode(), arguments.encode())
             self.sock.send(data)
             try:
                 if self.sock.recv(4096) == b'ack':
@@ -58,7 +59,7 @@ def main():
     """Main Function."""
     print(sys.argv)
     client = Client(sys.argv[1])
-    client.send_project(sys.argv[2], sys.argv[3], sys.argv[4])
+    client.send_project(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
 
 
 if __name__ == "__main__":
