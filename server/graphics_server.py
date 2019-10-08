@@ -71,7 +71,7 @@ class Project():
         os.makedirs(self.name, exist_ok=True)
         os.chdir(self.name)
         if os.path.exists(self.execfile):
-            os.system('rm %s' % self.execfile.decod())
+            os.system('rm %s' % self.execfile.decode())
         self.process = None
 
     def __del__(self):
