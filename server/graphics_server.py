@@ -64,7 +64,6 @@ class Project():
         arguments = self.arguments.split()
         for arg in self.arguments.split():
             if arg == b'-c' or arg == b'--clean':
-                print(os.getcwd())
                 os.system('rm -rf ./*')
                 arguments.remove(arg)
                 break
@@ -72,7 +71,6 @@ class Project():
         os.makedirs(self.name, exist_ok=True)
         os.chdir(self.name)
         if os.path.exists(self.execfile):
-            print(os.getcwd())
             os.system('rm %s' % self.execfile.decod())
         self.process = None
 
