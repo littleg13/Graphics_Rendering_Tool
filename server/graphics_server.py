@@ -53,26 +53,40 @@ class Server():
 
 class Project():
     def __init__(self, setup_packet):
-        name_size, make_size, exec_size = struct.unpack_from('<LLL', setup_packet, 0)
-        self.name, self.makefile, self.execfile = struct.unpack_from('<%ss%ss%ss' % (name_size, make_size, exec_size), setup_packet, 12)
+        name_size, make_size, exec_size, arg_size = struct.unpack_from('<LLLL', setup_packet, 0)
+        self.name, self.makefile, self.execfile, self.arguments = struct.unpack_from('<%ss%ss%ss%ss' % (name_size, make_size, exec_size, arg_size), setup_packet, 16)
+        if os.path.exists(self.name):
+            os.system('rm -rf projects/*')
         os.makedirs(self.name, exist_ok=True)
         os.chdir(self.name)
         self.process = None
 
     def __del__(self):
-        self.process.terminate()
+        if self.process is not None:
+            self.process.terminate()
     
     def make(self):
         root_dir = os.getcwd()
         os.chdir(os.path.dirname(self.makefile))
-        os.system('make')
+        subprocess.call('make', shell=True)
         os.chdir(root_dir)
 
     def run(self):
-        self.process = subprocess.Popen(self.execfile)
+        root_dir = os.getcwd()
+        os.chdir(os.path.dirname(self.execfile))
+        if os.path.isfile(os.path.basename(self.execfile.decode())):
+            self.process = subprocess.Popen('exec ./' + os.path.basename(self.execfile.decode()) + ' ' + self.arguments.decode(), shell=True)
+        os.chdir(root_dir)
         
 def main():
     """Main Function."""
+    absPath = os.path.abspath(__file__)
+    dirName = os.path.dirname(absPath)
+    os.chdir(dirName)
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    print('IP: ' + s.getsockname()[0])
+    s.close()
     server = Server()
     server.main_loop()
 
