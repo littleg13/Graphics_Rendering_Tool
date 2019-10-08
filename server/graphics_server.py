@@ -63,11 +63,11 @@ class Project():
         self.name, self.makefile, self.execfile, self.arguments = struct.unpack_from('<%ss%ss%ss%ss' % (name_size, make_size, exec_size, arg_size), setup_packet, 16)
         arguments = self.arguments.split()
         for arg in self.arguments.split():
-            if arg == '-c' or arg == '--clean':
+            if arg == b'-c' or arg == b'--clean':
                 os.system('rm -rf projects/')
                 arguments.remove(arg)
                 break
-        self.arguments = ' '.join(arguments)
+        self.arguments = b' '.join(arguments)
         if os.path.exists(self.execfile):
             os.system('rm -f %s' % self.execfile)
         os.makedirs(self.name, exist_ok=True)
@@ -88,7 +88,7 @@ class Project():
         root_dir = os.getcwd()
         os.chdir(os.path.dirname(self.execfile))
         if os.path.isfile(os.path.basename(self.execfile.decode())):
-            self.process = subprocess.Popen('exec ./' + os.path.basename(self.execfile.decode()) + ' ' + self.arguments, shell=True)
+            self.process = subprocess.Popen('exec ./' + os.path.basename(self.execfile.decode()) + ' ' + self.arguments.decode(), shell=True)
         os.chdir(root_dir)
         
 def main():
