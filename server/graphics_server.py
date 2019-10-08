@@ -64,14 +64,15 @@ class Project():
         arguments = self.arguments.split()
         for arg in self.arguments.split():
             if arg == b'-c' or arg == b'--clean':
-                os.system('rm -rf projects/')
+                print(os.getcwd())
+                os.system('rm -rf ./*')
                 arguments.remove(arg)
                 break
         self.arguments = b' '.join(arguments)
-        if os.path.exists(self.execfile):
-            os.system('rm -f %s' % self.execfile)
         os.makedirs(self.name, exist_ok=True)
         os.chdir(self.name)
+        if os.path.exists(self.execfile):
+            os.system('rm -f %s' % self.execfile)
         self.process = None
 
     def __del__(self):
