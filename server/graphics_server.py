@@ -82,7 +82,7 @@ class Project():
         root_dir = os.getcwd()
         os.chdir(os.path.dirname(self.execfile))
         if os.path.isfile(os.path.basename(self.execfile.decode())):
-            self.process = subprocess.Popen('exec ./' + os.path.basename(self.execfile.decode()) + ' ' + self.arguments.decode(), shell=True)
+            self.process = subprocess.Popen('exec ./' + os.path.basename(self.execfile.decode()) + ' ' + self.arguments, shell=True)
         os.chdir(root_dir)
         
 def main():
