@@ -32,9 +32,9 @@ class Server():
         header = self.client_sock.recv(4096)
         if header == b'end':
             return None
-        size, name_length, modified_time, accessed_time = struct.unpack_from('<LLff', header, 0)
+        size, name_length, modified_time, accessed_time = struct.unpack_from('<LLLL', header, 0)
         filename = struct.unpack_from('<%ss' % name_length, header, 16)[0]
-        if os.path.exists(filename) and os.stat(filename).st_mtime == modified_time:
+        if os.path.exists(filename) and os.stat(filename).st_mtime_ns == modified_time:
             self.client_sock.send(b'deny')
             return False
         else:
@@ -53,7 +53,7 @@ class Server():
                     print(e)
                     break
         self.client_sock.send(b'ack')
-        os.utime(filename, (accessed_time, modified_time))
+        os.utime(filename, ns=(accessed_time, modified_time))
         return filename
 
 
