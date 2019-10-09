@@ -41,8 +41,7 @@ class Client():
         stat = os.stat(full_path)
         modified_time = stat.st_mtime_ns
         accessed_time = stat.st_atime_ns
-        print(modified_time)
-        header = struct.pack('<LLLL%ss' % len(relative_path), os.path.getsize(full_path), len(relative_path), modified_time, accessed_time, relative_path.encode())
+        header = struct.pack('<LLQQ%ss' % len(relative_path), os.path.getsize(full_path), len(relative_path), modified_time, accessed_time, relative_path.encode())
         self.sock.send(header)
         try:
             reply = self.sock.recv(4096)
