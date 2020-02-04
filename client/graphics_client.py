@@ -38,6 +38,8 @@ class Client():
             print('File path not found')
 
     def send_file(self, relative_path, full_path):
+        relative_path = relative_path.replace("\\","/")
+        full_path = full_path.replace("\\","/")
         stat = os.stat(full_path)
         modified_time = stat.st_mtime_ns
         accessed_time = stat.st_atime_ns
