@@ -81,6 +81,7 @@ class Project():
     def make(self):
         root_dir = os.getcwd()
         os.chdir(os.path.dirname(self.makefile))
+        os.system('clear')
         subprocess.call('make', shell=True)
         os.chdir(root_dir)
 
